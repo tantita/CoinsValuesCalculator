@@ -10,9 +10,14 @@ var app = new Vue({
 
     data() {
         return {
+            timerValue: '',
+            responseReceived: false,
+            totalUSD: 0,
+            totalEUR: 0,
+            totalBTC: 0,
+            generatedDate: '',
             search: '',
-            total: 0,
-            pagination: { sortBy: 'rank', rowsPerPage: 100, ascending: true },
+            pagination: { sortBy: 'rank', rowsPerPage: 100, descending: false },
             headers: [
                 {
                     text: "Rank",
@@ -31,9 +36,13 @@ var app = new Vue({
                     value: "amount"
                 },
                 {
-                    text: "Value",
-                    value: "value"
-                },                
+                    text: "Value (USD)",
+                    value: "valueUSD"
+                },
+                {
+                    text: "%",
+                    value: "percentage"
+                },
                 {
                     text: "Market Cap",
                     value: "market_cap_usd"
@@ -73,20 +82,50 @@ var app = new Vue({
     methods: {
         getCoins(api) {
             api = this.apiUrl;
-            console.log('before sending the request to coin', new Date())
+            console.log('before sending the request to coinmarketcap', new Date())
             axios
                 .get(api)
                 .then(response => {
                     console.log('response received - ' + response.data.length, new Date())
                     this.items = this.addMyCoins(response.data);
-                    this.items.forEach(elem => elem['convName'] = elem['name'].replace(/ /g, "-"));
+                    clearInterval(this.timerId);
+                    /*this.items.forEach(elem => {
+						elem.convName = elem['name'].replace(/ /g, "-"); //create the name to be used in link
+						if (elem.valueUSD) {
+							elem.percentage = elem.valueUSD/this.totalUSD; //calculate percent
+						}
+                    });*/
+                    this.responseReceived = true;
+                    document.title = 'How much do my coins cost?';
+                    this.generatedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
                     console.log('response processed', new Date())
                 })
                 .catch(error => {
                     console.log(error);
                     this.items = [];
+                    clearInterval(this.timerId);
+                    this.timerValue = error;
+                    document.title = 'Error';
                 });
+            this.startTimer();
         },
+
+        startTimer() {
+            var startTime = new Date();
+            this.timerValue = "Starting the timer...";
+            this.timerId = setInterval(() => {
+                var ms = parseInt(new Date() - startTime);
+                var x = ms / 1000;
+                var seconds = parseInt(x % 60, 10);
+                x /= 60;
+                var minutes = parseInt(x % 60, 10);
+                x /= 60;
+                var hours = parseInt(x % 24, 10);
+                this.timerValue =
+                    `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
+            }, 1000);
+        },
+
         addMyCoins(arr) {
             var myCoins = returnMyCoins();
             myCoins.forEach(elem => {
@@ -95,11 +134,14 @@ var app = new Vue({
                 for (let i = 0; i < arr.length; i++) {
                     if (arr[i].symbol === elem.symbol) {
                         arr[i].amount = (arr[i].amount || 0) + elem.amount;
-                        var val = elem.amount * arr[i].price_usd; 
-                        arr[i].value = (arr[i].value || 0) + val;
-                        this.total += val;
+                        var valUSD = elem.amount * arr[i].price_usd;
+                        arr[i].valueUSD = (arr[i].valueUSD || 0) + valUSD;
+                        this.totalUSD += valUSD;
+                        arr[i].percentage = arr[i].valueUSD / this.totalUSD; //calculate percent
+                        this.totalEUR += elem.amount * arr[i].price_eur;
+                        this.totalBTC += elem.amount * arr[i].price_btc;
                         found = true;
-                        break;                       
+                        break;
                     }
                 }
                 if (!found) {

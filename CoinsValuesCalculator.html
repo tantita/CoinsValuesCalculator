@@ -2,52 +2,92 @@
 <html>
 
 <head>
+    <title>Loading...</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
     <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 
 
 <body>
     <v-app id="app">
-        <v-card-title>
-            <h3 class="headline mb-0"> Total value - {{total.toFixed(2)}}USD </h3>
-            <v-spacer></v-spacer>
-            <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
-        </v-card-title>
+        <div v-cloak>
+            <div style="margin: 15px;" v-if="!responseReceived">
+                <h1>Sent the request to Coinmarketcap API to return the top 100 of cryptocurrences</h1>
+                <h1>Expecting the response...</h1>
+                <h1>{{timerValue}}</h1>
+            </div>
+            <v-card v-show="responseReceived">
+                <v-card-title>
+                    <h3 class="headline mb-0">
+                        Total value - {{totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalEUR.toLocaleString("en", {style:
+                        "currency", currency: "EUR"})}} /
+                        <i class="fa fa-btc"></i>{{totalBTC.toFixed(8)}}
+                    </h3>
+                    <v-spacer></v-spacer>
+                    <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
+                </v-card-title>
+                <v-card>
+                    <v-card-title>
+                        <em>Generated: {{generatedDate}}</em>
+                    </v-card-title>
+                </v-card>
+                <v-data-table v-bind:headers="headers" v-bind:items="items" v-bind:search="search" v-bind:pagination.sync="pagination">
+                    <template slot="items" slot-scope="props">
+                        <td class="text-xs-right">{{ props.item.rank }}</td>
+                        <td class="text-xs-right">{{ props.item.symbol }}</td>
+                        <td class="text-xs-right">
+                            <a v-bind:href="'https://coinmarketcap.com/currencies/' + [props.item.id][0]" target="_blank">
+                                {{ props.item.name }}
+                            </a>
 
-        <v-data-table v-bind:headers="headers" v-bind:items="items" v-bind:search="search" v-bind:pagination.sync="pagination">
-            <template slot="items" scope="props">
-                <td class="text-xs-right">{{ props.item.rank }}</td>
-                <td class="text-xs-right">{{ props.item.symbol }}</td>
-                <td class="text-xs-right">
-                    <a v-bind:href="'https://coinmarketcap.com/currencies/' + [props.item.convName][0]" target="_blank">
-                        {{ props.item.name }}
-                    </a>
-
-                </td>
-                <td class="text-xs-right">
-                    <span v-if="props.item.amount">
-                        {{ props.item.amount.toFixed(8) }}
-                    </span>
-                </td>
-                <td class="text-xs-right">
-                    <span v-if="props.item.value">
-                        {{ props.item.value.toFixed(2) }}
-                    </span>
-                </td>
-                <td class="text-xs-right">{{ props.item.market_cap_usd }}</td>
-                <td class="text-xs-right">{{ props.item.price_usd }}</td>
-                <td class="text-xs-right">{{ props.item.price_eur }}</td>
-                <td class="text-xs-right">{{ props.item.price_btc }}</td>
-                <td class="text-xs-right">{{ props.item.total_supply }}</td>
-                <td class="text-xs-right">{{ props.item.percent_change_1h }}</td>
-                <td class="text-xs-right">{{ props.item.percent_change_24h }}</td>
-                <td class="text-xs-right">{{ props.item.percent_change_7d }}</td>
-            </template>
-        </v-data-table>
-        </v-card>
+                        </td>
+                        <td class="text-xs-right">
+                            <span v-if="props.item.amount">
+                                {{ props.item.amount.toFixed(8) }}
+                            </span>
+                        </td>
+                        <td class="text-xs-right">
+                            <span v-if="props.item.valueUSD">
+                                {{ props.item.valueUSD.toFixed(2) }}
+                            </span>
+                        </td>
+                        <td class="text-xs-right">
+                            <span v-if="props.item.percentage">
+                                {{ props.item.percentage.toLocaleString("en", {style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
+                            </span>
+                        </td>
+                        <td class="text-xs-right">{{ Math.round(props.item.market_cap_usd) }}</td>
+                        <td class="text-xs-right">{{ Number(props.item.price_usd).toFixed(4) }}</td>
+                        <td class="text-xs-right">{{ Number(props.item.price_eur).toFixed(4) }}</td>
+                        <td class="text-xs-right">{{ Number(props.item.price_btc).toFixed(8) }}</td>
+                        <td class="text-xs-right">{{ props.item.total_supply }}</td>
+                        <td class="text-xs-right">
+                            <span v-bind:style="{ color: props.item.percent_change_1h < 0 ? 'red' : 'green' }">
+                                {{ props.item.percent_change_1h }}
+                            </span>
+                        </td>
+                        <td class="text-xs-right">
+                            <span v-bind:style="{ color: props.item.percent_change_24h < 0 ? 'red' : 'green' }">
+                                {{ props.item.percent_change_24h }}
+                            </span>
+                        </td>
+                        <td class="text-xs-right">
+                            <span v-bind:style="{ color: props.item.percent_change_7d < 0 ? 'red' : 'green' }">
+                                {{ props.item.percent_change_7d }}
+                            </span>
+                        </td>
+                    </template>
+                </v-data-table>
+            </v-card>
+        </div>
     </v-app>
 
     <script src="https://unpkg.com/vue"></script>
