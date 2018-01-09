@@ -88,13 +88,13 @@ var app = new Vue({
                 .then(response => {
                     console.log('response received - ' + response.data.length, new Date())
                     this.items = this.addMyCoins(response.data);
+                    this.items.forEach(elem => {
+                        //elem.convName = elem['name'].replace(/ /g, "-"); //create the name to be used in link
+                        if (elem.valueUSD) {
+                            elem.percentage = elem.valueUSD / this.totalUSD; //calculate percent
+                        }
+                    });
                     clearInterval(this.timerId);
-                    /*this.items.forEach(elem => {
-						elem.convName = elem['name'].replace(/ /g, "-"); //create the name to be used in link
-						if (elem.valueUSD) {
-							elem.percentage = elem.valueUSD/this.totalUSD; //calculate percent
-						}
-                    });*/
                     this.responseReceived = true;
                     document.title = 'How much do my coins cost?';
                     this.generatedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
@@ -137,7 +137,7 @@ var app = new Vue({
                         var valUSD = elem.amount * arr[i].price_usd;
                         arr[i].valueUSD = (arr[i].valueUSD || 0) + valUSD;
                         this.totalUSD += valUSD;
-                        arr[i].percentage = arr[i].valueUSD / this.totalUSD; //calculate percent
+                        //arr[i].percentage = arr[i].valueUSD / this.totalUSD; //calculate percent
                         this.totalEUR += elem.amount * arr[i].price_eur;
                         this.totalBTC += elem.amount * arr[i].price_btc;
                         found = true;
@@ -152,6 +152,8 @@ var app = new Vue({
         }
     },
     mounted() {
+        console.log(this.$vuetify.breakpoint);
+        console.log(this.$vuetify.breakpoint.name);
         this.getCoins();
     }
 });
