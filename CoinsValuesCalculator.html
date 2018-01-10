@@ -20,9 +20,9 @@
     <v-app id="app">
         <div v-cloak>
             <div style="margin: 15px;" v-if="!responseReceived">
-                <h1>Sent the request to Coinmarketcap API to return the top 100 of cryptocurrences</h1>
-                <h1>Expecting the response...</h1>
-                <h1>{{timerValue}}</h1>
+                <h3>Sent the request to Coinmarketcap API to get cryptocurrences top 100</h3>
+                <h3>Expecting the response...</h3>
+                <h3>{{timerValue}}</h3>
             </div>
             <v-content>
                 <v-container fluid fill-width>
@@ -34,6 +34,9 @@
                                     "currency", currency: "EUR"})}} /
                                     <i class="fa fa-btc"></i>{{totalBTC.toFixed(8)}}
                                 </h3>
+                                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="save">
+                                    <v-icon dark>add</v-icon>
+                                </v-btn>
                                 <v-spacer></v-spacer>
                                 <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
                             </v-card-title>
@@ -96,6 +99,20 @@
 
         </div>
     </v-app>
+
+    <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyAH6bmHzeLCJstIN6JAEna7Px_dnmWXz8k",
+            authDomain: "coinsvaluescalculator.firebaseapp.com",
+            databaseURL: "https://coinsvaluescalculator.firebaseio.com",
+            projectId: "coinsvaluescalculator",
+            storageBucket: "coinsvaluescalculator.appspot.com",
+            messagingSenderId: "796619285042"
+        };
+        firebase.initializeApp(config);
+    </script>
 
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>

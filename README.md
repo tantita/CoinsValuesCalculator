@@ -5,6 +5,13 @@ Calculate the summary value of your coins using the prices returned by [CoinMark
 ## Create mycoins.js file in the following format
 
 ```javascript
+function getFbCredentials () { //this function is optional
+    return [
+        '', //firebase username
+        ''  //firebase password
+    ]
+}
+
 function returnMyCoins() {
     return [
         {

@@ -17,6 +17,7 @@ var app = new Vue({
             totalBTC: 0,
             generatedDate: '',
             search: '',
+            authenticated: false, //check if I am authenticated in FB
             pagination: { sortBy: 'rank', rowsPerPage: 100, descending: false },
             headers: [
                 {
@@ -98,9 +99,11 @@ var app = new Vue({
                     this.responseReceived = true;
                     document.title = 'How much do my coins cost?';
                     this.generatedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
+                    this.timestamp = new Date().getTime();
                     console.log('response processed', new Date())
                 })
                 .catch(error => {
+                    console.log('inside catch...');
                     console.log(error);
                     this.items = [];
                     clearInterval(this.timerId);
@@ -137,7 +140,6 @@ var app = new Vue({
                         var valUSD = elem.amount * arr[i].price_usd;
                         arr[i].valueUSD = (arr[i].valueUSD || 0) + valUSD;
                         this.totalUSD += valUSD;
-                        //arr[i].percentage = arr[i].valueUSD / this.totalUSD; //calculate percent
                         this.totalEUR += elem.amount * arr[i].price_eur;
                         this.totalBTC += elem.amount * arr[i].price_btc;
                         found = true;
@@ -149,11 +151,44 @@ var app = new Vue({
                 }
             });
             return arr;
+        },
+
+        save() {
+            var userId = firebase.auth().currentUser.uid;
+            firebase.database().ref('/' + userId + '/' + (this.timestamp)).set({
+                date: this.generatedDate,
+                btc: this.totalBTC,
+                eur: this.totalEUR,
+                usd: this.totalUSD
+            });
         }
     },
     mounted() {
         console.log(this.$vuetify.breakpoint);
-        console.log(this.$vuetify.breakpoint.name);
+        
         this.getCoins();
+
+        if (typeof getFbCredentials === 'function') { //check if we have a function with credentials 
+            var credentials = getFbCredentials();
+            if (!firebase.auth().currentUser) {
+                console.log('authentication required');
+                firebase.auth().signInWithEmailAndPassword(credentials[0], credentials[1]).catch(function (error) {
+                    //firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.log('FB authentication error', errorCode, errorMessage);
+                });
+            } else {
+                console.log('authentication IS NOT required');
+                this.authenticated = true;
+            }
+
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) { // User is signed in.
+                    console.log('in on auth changed');
+                    this.authenticated = true;
+                }
+            });
+        } 
     }
 });
