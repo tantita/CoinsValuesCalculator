@@ -97,7 +97,7 @@ var app = new Vue({
                     });
                     clearInterval(this.timerId);
                     this.responseReceived = true;
-                    document.title = 'How much do my coins cost?';
+                    document.title = `(${this.totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})})How much do my coins cost?`;
                     this.generatedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
                     this.timestamp = new Date().getTime();
                     console.log('response processed', new Date())
