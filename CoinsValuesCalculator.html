@@ -74,20 +74,20 @@
                                     <td class="text-xs-right">{{ Number(props.item.price_usd).toFixed(4) }}</td>
                                     <td class="text-xs-right">{{ Number(props.item.price_eur).toFixed(4) }}</td>
                                     <td class="text-xs-right">{{ Number(props.item.price_btc).toFixed(8) }}</td>
-                                    <td class="text-xs-right">{{ props.item.total_supply }}</td>
+                                    <td class="text-xs-right">{{ Math.round(props.item.total_supply) }}</td>
                                     <td class="text-xs-right">
                                         <span v-bind:style="{ color: props.item.percent_change_1h < 0 ? 'red' : 'green' }">
-                                            {{ props.item.percent_change_1h }}
+                                            {{ Number(props.item.percent_change_1h).toFixed(2) }}
                                         </span>
                                     </td>
                                     <td class="text-xs-right">
                                         <span v-bind:style="{ color: props.item.percent_change_24h < 0 ? 'red' : 'green' }">
-                                            {{ props.item.percent_change_24h }}
+                                            {{ Number(props.item.percent_change_24h).toFixed(2) }}
                                         </span>
                                     </td>
                                     <td class="text-xs-right">
                                         <span v-bind:style="{ color: props.item.percent_change_7d < 0 ? 'red' : 'green' }">
-                                            {{ props.item.percent_change_7d }}
+                                            {{ Number(props.item.percent_change_7d).toFixed(2) }}
                                         </span>
                                     </td>
                                 </template>
