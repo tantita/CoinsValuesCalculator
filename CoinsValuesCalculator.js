@@ -155,7 +155,7 @@ var app = new Vue({
 
         save() {
             var userId = firebase.auth().currentUser.uid;
-            firebase.database().ref('/' + userId + '/' + (this.timestamp)).set({
+            firebase.database().ref('/' + userId + '/balance/' + (this.timestamp)).set({
                 date: this.generatedDate,
                 btc: this.totalBTC,
                 eur: this.totalEUR,
