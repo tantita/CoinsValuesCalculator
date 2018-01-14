@@ -29,12 +29,12 @@
                     <v-layout>
                         <v-card v-show="responseReceived">
                             <v-card-title>
-                                <h3 class="headline mb-0">
+                                <h6 class="headline mb-0">
                                     Total value - {{totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalEUR.toLocaleString("en", {style:
                                     "currency", currency: "EUR"})}} /
                                     <i class="fa fa-btc"></i>{{totalBTC.toFixed(8)}}
-                                </h3>
-                                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="save">
+                                </h6>
+                                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase">
                                     <v-icon dark>add</v-icon>
                                 </v-btn>
                                 <v-spacer></v-spacer>
@@ -45,6 +45,12 @@
                                     <em>Generated: {{generatedDate}}</em>
                                 </v-card-title>
                             </v-card>
+                            <v-card>
+                                <v-card-title>
+                                    <em>cryptocompare
+                                    </em>
+                                </v-card-title>
+                            </v-card>
                             <v-data-table v-bind:headers="headers" v-bind:items="items" v-bind:search="search" v-bind:pagination.sync="pagination">
                                 <template slot="items" slot-scope="props">
                                     <td class="text-xs-right">{{ props.item.rank }}</td>
@@ -53,7 +59,6 @@
                                         <a v-bind:href="'https://coinmarketcap.com/currencies/' + [props.item.id][0]" target="_blank">
                                             {{ props.item.name }}
                                         </a>
-
                                     </td>
                                     <td class="text-xs-right">
                                         <span v-if="props.item.amount">

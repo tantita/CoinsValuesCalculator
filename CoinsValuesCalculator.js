@@ -1,23 +1,16 @@
 var app = new Vue({
     el: "#app",
 
-    props: {
-        apiUrl: {
-            type: String,
-            default: "https://api.coinmarketcap.com/v1/ticker/?limit=100&convert=EUR"
-        }
-    },
-
     data() {
         return {
             timerValue: '',
             responseReceived: false,
-            totalUSD: 0,
-            totalEUR: 0,
-            totalBTC: 0,
+            totalUSD: 0, //CoinMarketCap
+            totalEUR: 0, //CoinMarketCap
+            totalBTC: 0, //CoinMarketCap
             generatedDate: '',
             search: '',
-            authenticated: false, //check if I am authenticated in FB
+            authenticated: false, //check if user is authenticated by FB
             pagination: { sortBy: 'rank', rowsPerPage: 100, descending: false },
             headers: [
                 {
@@ -81,11 +74,13 @@ var app = new Vue({
         };
     },
     methods: {
-        getCoins(api) {
-            api = this.apiUrl;
+        getCryptoCompareCoins() {
+        },
+
+        getCoinMarketCapCoins() {
             console.log('before sending the request to coinmarketcap', new Date())
             axios
-                .get(api)
+                .get(this.apiUrl)
                 .then(response => {
                     console.log('response received - ' + response.data.length, new Date())
                     this.items = this.addMyCoins(response.data);
@@ -97,7 +92,7 @@ var app = new Vue({
                     });
                     clearInterval(this.timerId);
                     this.responseReceived = true;
-                    document.title = `(${this.totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})})How much do my coins cost?`;
+                    document.title = `(${this.totalUSD.toLocaleString("en", { style: "currency", currency: "USD" })})How much do my coins cost?`;
                     this.generatedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
                     this.timestamp = new Date().getTime();
                     console.log('response processed', new Date())
@@ -110,13 +105,13 @@ var app = new Vue({
                     this.timerValue = error;
                     document.title = 'Error';
                 });
-            this.startTimer();
+            this.startTimer(this.timeValue, this.timerId);
         },
 
-        startTimer() {
+        startTimer(timerValue, timerId) {
             var startTime = new Date();
-            this.timerValue = "Starting the timer...";
-            this.timerId = setInterval(() => {
+            timerValue = "Starting the timer...";
+            timerId = setInterval(() => {
                 var ms = parseInt(new Date() - startTime);
                 var x = ms / 1000;
                 var seconds = parseInt(x % 60, 10);
@@ -124,14 +119,12 @@ var app = new Vue({
                 var minutes = parseInt(x % 60, 10);
                 x /= 60;
                 var hours = parseInt(x % 24, 10);
-                this.timerValue =
-                    `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
+                timerValue = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
             }, 1000);
         },
 
         addMyCoins(arr) {
-            var myCoins = returnMyCoins();
-            myCoins.forEach(elem => {
+            this.myCoins.forEach(elem => {
                 console.log('Analyzing ticker - ' + elem.symbol);
                 var found = false;
                 for (let i = 0; i < arr.length; i++) {
@@ -153,7 +146,7 @@ var app = new Vue({
             return arr;
         },
 
-        save() {
+        saveToFireBase() {
             var userId = firebase.auth().currentUser.uid;
             firebase.database().ref('/' + userId + '/balance/' + (this.timestamp)).set({
                 date: this.generatedDate,
@@ -164,9 +157,13 @@ var app = new Vue({
         }
     },
     mounted() {
-        console.log(this.$vuetify.breakpoint);
-        
-        this.getCoins();
+
+        //console.log(this.$vuetify.breakpoint);
+
+        this.apiUrl = "https://api.coinmarketcap.com/v1/ticker/?limit=100&convert=EUR";
+        this.myCoins = returnMyCoins();
+        this.getCoinMarketCapCoins();
+        this.getCryptoCompareCoins();
 
         if (typeof getFbCredentials === 'function') { //check if we have a function with credentials 
             var credentials = getFbCredentials();
@@ -189,6 +186,6 @@ var app = new Vue({
                     this.authenticated = true;
                 }
             });
-        } 
+        }
     }
 });
