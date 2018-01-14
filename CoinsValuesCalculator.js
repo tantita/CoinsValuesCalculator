@@ -8,6 +8,9 @@ var app = new Vue({
             totalUSD: 0, //CoinMarketCap
             totalEUR: 0, //CoinMarketCap
             totalBTC: 0, //CoinMarketCap
+            totalCcUSD: 0, //CryptoCompare
+            totalCcEUR: 0, //CryptoCompare
+            totalCcBTC: 0, //CryptoCompare
             generatedDate: '',
             search: '',
             authenticated: false, //check if user is authenticated by FB
@@ -75,12 +78,32 @@ var app = new Vue({
     },
     methods: {
         getCryptoCompareCoins() {
+            console.log(this.myCoins);
+
+            axios
+                .get(this.cryptoCompareUrl, {
+                    params: {
+                        'fsyms': this.myCoins.map(elem => elem.symbol).join(','),
+                        'tsyms': 'USD,EUR,BTC'
+                    }
+                })
+                .then(response => {
+                    console.log(response.data);
+                    this.totalCcUSD = 0;
+                    this.totalCcEUR = 0;
+                    this.totalCcBTC = 0;
+                    this.myCoins.forEach(elem => {
+                        console.log('Analyzing ticker - ' + elem.symbol);
+                        var found = false;
+                    });
+                })
+                .catch(error => console.log(error))
         },
 
         getCoinMarketCapCoins() {
             console.log('before sending the request to coinmarketcap', new Date())
             axios
-                .get(this.apiUrl)
+                .get(this.coinMarketCapUrl)
                 .then(response => {
                     console.log('response received - ' + response.data.length, new Date())
                     this.items = this.addMyCoins(response.data);
@@ -125,7 +148,7 @@ var app = new Vue({
 
         addMyCoins(arr) {
             this.myCoins.forEach(elem => {
-                console.log('Analyzing ticker - ' + elem.symbol);
+                //console.log('Analyzing ticker - ' + elem.symbol);
                 var found = false;
                 for (let i = 0; i < arr.length; i++) {
                     if (arr[i].symbol === elem.symbol) {
@@ -160,7 +183,8 @@ var app = new Vue({
 
         //console.log(this.$vuetify.breakpoint);
 
-        this.apiUrl = "https://api.coinmarketcap.com/v1/ticker/?limit=100&convert=EUR";
+        this.coinMarketCapUrl = 'https://api.coinmarketcap.com/v1/ticker/?limit=100&convert=EUR';
+        this.cryptoCompareUrl = 'https://min-api.cryptocompare.com/data/pricemulti';
         this.myCoins = returnMyCoins();
         this.getCoinMarketCapCoins();
         this.getCryptoCompareCoins();
