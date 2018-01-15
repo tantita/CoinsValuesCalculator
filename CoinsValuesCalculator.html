@@ -2,128 +2,133 @@
 <html>
 
 <head>
-    <title>Loading...</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
-    <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <style>
-        [v-cloak] {
-            display: none;
-        }
-    </style>
+  <title>Loading...</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+  <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
 </head>
 
 
 <body>
-    <v-app id="app">
-        <div v-cloak>
-            <div style="margin: 15px;" v-if="!responseReceived">
-                <h3>Sent the request to Coinmarketcap API to get cryptocurrences top 100</h3>
-                <h3>Expecting the response...</h3>
-                <h3>{{timerValue}}</h3>
-            </div>
-            <v-content>
-                <v-container fluid fill-width>
-                    <v-layout>
-                        <v-card v-show="responseReceived">
-                            <v-card-title>
-                                <h6 class="headline mb-0">
-                                    Total value - {{totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalEUR.toLocaleString("en", {style:
-                                    "currency", currency: "EUR"})}} /
-                                    <i class="fa fa-btc"></i>{{totalBTC.toFixed(8)}}
-                                </h6>
-                                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase">
-                                    <v-icon dark>add</v-icon>
-                                </v-btn>
-                                <v-spacer></v-spacer>
-                                <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
-                            </v-card-title>
-                            <v-card>
-                                <v-card-title>
-                                    <em>Generated: {{generatedDate}}</em>
-                                </v-card-title>
-                            </v-card>
-                            <v-card>
-                                <v-card-title>
-                                    <em>cryptocompare
-                                    </em>
-                                </v-card-title>
-                            </v-card>
-                            <v-data-table v-bind:headers="headers" v-bind:items="items" v-bind:search="search" v-bind:pagination.sync="pagination">
-                                <template slot="items" slot-scope="props">
-                                    <td class="text-xs-right">{{ props.item.rank }}</td>
-                                    <td class="text-xs-right">{{ props.item.symbol }}</td>
-                                    <td class="text-xs-right">
-                                        <a v-bind:href="'https://coinmarketcap.com/currencies/' + [props.item.id][0]" target="_blank">
-                                            {{ props.item.name }}
-                                        </a>
-                                    </td>
-                                    <td class="text-xs-right">
-                                        <span v-if="props.item.amount">
-                                            {{ props.item.amount.toFixed(8) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-xs-right">
-                                        <span v-if="props.item.valueUSD">
-                                            {{ props.item.valueUSD.toFixed(2) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-xs-right">
-                                        <span v-if="props.item.percentage">
-                                            {{ props.item.percentage.toLocaleString("en", {style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-xs-right">{{ Math.round(props.item.market_cap_usd) }}</td>
-                                    <td class="text-xs-right">{{ Number(props.item.price_usd).toFixed(4) }}</td>
-                                    <td class="text-xs-right">{{ Number(props.item.price_eur).toFixed(4) }}</td>
-                                    <td class="text-xs-right">{{ Number(props.item.price_btc).toFixed(8) }}</td>
-                                    <td class="text-xs-right">{{ Math.round(props.item.total_supply) }}</td>
-                                    <td class="text-xs-right">
-                                        <span v-bind:style="{ color: props.item.percent_change_1h < 0 ? 'red' : 'green' }">
-                                            {{ Number(props.item.percent_change_1h).toFixed(2) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-xs-right">
-                                        <span v-bind:style="{ color: props.item.percent_change_24h < 0 ? 'red' : 'green' }">
-                                            {{ Number(props.item.percent_change_24h).toFixed(2) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-xs-right">
-                                        <span v-bind:style="{ color: props.item.percent_change_7d < 0 ? 'red' : 'green' }">
-                                            {{ Number(props.item.percent_change_7d).toFixed(2) }}
-                                        </span>
-                                    </td>
-                                </template>
-                            </v-data-table>
-                        </v-card>
-                    </v-layout>
-                </v-container>
-            </v-content>
+  <v-app id="app">
+    <div v-cloak>
+      <div style="margin: 15px;" v-if="!responseReceived">
+        <h3>Sent the request to Coinmarketcap API to get cryptocurrences top 100</h3>
+        <h3>Expecting the response...</h3>
+        <h3>{{timerValue}}</h3>
+      </div>
+      <v-content>
+        <v-container fluid fill-width>
+          <v-layout>
+            <v-card v-show="responseReceived">
+              <v-card-title>
+                <h6 class="headline mb-0">
+                  Total value - {{totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalEUR.toLocaleString("en", {style:
+                  "currency", currency: "EUR"})}} /
+                  <i class="fa fa-btc"></i>{{totalBTC.toFixed(8)}}
+                </h6>
+                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('CMC', totalUSD)">
+                  <v-icon dark>add</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
+              </v-card-title>
+              <v-card>
+                <v-card-title>
+                  <em>Generated: {{generatedDate}}</em>
+                </v-card-title>
+              </v-card>
+              <v-card>
+                <v-card-title>
+                  <em>Cryptocompare: {{totalCcUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalCcEUR.toLocaleString("en",
+                    {style: "currency", currency: "EUR"})}} /
+                    <i class="fa fa-btc"></i>{{totalCcBTC.toFixed(8)}}
+                    <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('CC')">
+                      <v-icon dark>add</v-icon>
+                    </v-btn>
+                  </em>
+                </v-card-title>
+              </v-card>
+              <v-data-table v-bind:headers="headers" v-bind:items="items" v-bind:search="search" v-bind:pagination.sync="pagination">
+                <template slot="items" slot-scope="props">
+                  <td class="text-xs-right">{{ props.item.rank }}</td>
+                  <td class="text-xs-right">{{ props.item.symbol }}</td>
+                  <td class="text-xs-right">
+                    <a v-bind:href="'https://coinmarketcap.com/currencies/' + [props.item.id][0]" target="_blank">
+                      {{ props.item.name }}
+                    </a>
+                  </td>
+                  <td class="text-xs-right">
+                    <span v-if="props.item.amount">
+                      {{ props.item.amount.toFixed(8) }}
+                    </span>
+                  </td>
+                  <td class="text-xs-right">
+                    <span v-if="props.item.valueUSD">
+                      {{ props.item.valueUSD.toFixed(2) }}
+                    </span>
+                  </td>
+                  <td class="text-xs-right">
+                    <span v-if="props.item.percentage">
+                      {{ props.item.percentage.toLocaleString("en", {style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
+                    </span>
+                  </td>
+                  <td class="text-xs-right">{{ Math.round(props.item.market_cap_usd) }}</td>
+                  <td class="text-xs-right">{{ Number(props.item.price_usd).toFixed(4) }}</td>
+                  <td class="text-xs-right">{{ Number(props.item.price_eur).toFixed(4) }}</td>
+                  <td class="text-xs-right">{{ Number(props.item.price_btc).toFixed(8) }}</td>
+                  <td class="text-xs-right">{{ Math.round(props.item.total_supply) }}</td>
+                  <td class="text-xs-right">
+                    <span v-bind:style="{ color: props.item.percent_change_1h < 0 ? 'red' : 'green' }">
+                      {{ Number(props.item.percent_change_1h).toFixed(2) }}
+                    </span>
+                  </td>
+                  <td class="text-xs-right">
+                    <span v-bind:style="{ color: props.item.percent_change_24h < 0 ? 'red' : 'green' }">
+                      {{ Number(props.item.percent_change_24h).toFixed(2) }}
+                    </span>
+                  </td>
+                  <td class="text-xs-right">
+                    <span v-bind:style="{ color: props.item.percent_change_7d < 0 ? 'red' : 'green' }">
+                      {{ Number(props.item.percent_change_7d).toFixed(2) }}
+                    </span>
+                  </td>
+                </template>
+              </v-data-table>
+            </v-card>
+          </v-layout>
+        </v-container>
+      </v-content>
 
-        </div>
-    </v-app>
+    </div>
+  </v-app>
 
-    <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
-    <script>
-        // Initialize Firebase
-        var config = {
-            apiKey: "AIzaSyAH6bmHzeLCJstIN6JAEna7Px_dnmWXz8k",
-            authDomain: "coinsvaluescalculator.firebaseapp.com",
-            databaseURL: "https://coinsvaluescalculator.firebaseio.com",
-            projectId: "coinsvaluescalculator",
-            storageBucket: "coinsvaluescalculator.appspot.com",
-            messagingSenderId: "796619285042"
-        };
-        firebase.initializeApp(config);
-    </script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyAH6bmHzeLCJstIN6JAEna7Px_dnmWXz8k",
+      authDomain: "coinsvaluescalculator.firebaseapp.com",
+      databaseURL: "https://coinsvaluescalculator.firebaseio.com",
+      projectId: "coinsvaluescalculator",
+      storageBucket: "coinsvaluescalculator.appspot.com",
+      messagingSenderId: "796619285042"
+    };
+    firebase.initializeApp(config);
+  </script>
 
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.1/axios.min.js"></script>
-    <script src="myCoins.js"></script>
-    <script src="CoinsValuesCalculator.js"></script>
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.1/axios.min.js"></script>
+  <script src="myCoins.js"></script>
+  <script src="CoinsValuesCalculator.js"></script>
 </body>
 
 </html>
