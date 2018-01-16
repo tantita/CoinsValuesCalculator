@@ -136,13 +136,13 @@ var app = new Vue({
           this.timerValue = error;
           document.title = 'Error';
         });
-      this.startTimer(this.timerValue, this.timerId);
+      this.startTimer();
     },
 
-    startTimer(timerValue, timerId) {
+    startTimer() {
       var startTime = new Date();
-      timerValue = "Starting the timer...";
-      timerId = setInterval(() => {
+      this.timerValue = "Starting the timer...";
+      this.timerId = setInterval(() => {
         var ms = parseInt(new Date() - startTime);
         var x = ms / 1000;
         var seconds = parseInt(x % 60, 10);
@@ -150,7 +150,7 @@ var app = new Vue({
         var minutes = parseInt(x % 60, 10);
         x /= 60;
         var hours = parseInt(x % 24, 10);
-        timerValue = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
+        this.timerValue = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
       }, 1000);
     },
 
