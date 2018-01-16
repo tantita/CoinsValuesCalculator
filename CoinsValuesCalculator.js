@@ -136,7 +136,7 @@ var app = new Vue({
           this.timerValue = error;
           document.title = 'Error';
         });
-      this.startTimer(this.timeValue, this.timerId);
+      this.startTimer(this.timerValue, this.timerId);
     },
 
     startTimer(timerValue, timerId) {
