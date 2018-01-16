@@ -5,13 +5,14 @@ var app = new Vue({
     return {
       timerValue: '',
       responseReceived: false,
-      totalUSD: 0, //CoinMarketCap
-      totalEUR: 0, //CoinMarketCap
-      totalBTC: 0, //CoinMarketCap
+      totalCmcUSD: 0, //CoinMarketCap
+      totalCmcEUR: 0, //CoinMarketCap
+      totalCmcBTC: 0, //CoinMarketCap
       totalCcUSD: 0, //CryptoCompare
       totalCcEUR: 0, //CryptoCompare
       totalCcBTC: 0, //CryptoCompare
-      generatedDate: '',
+      cmcGeneratedDate: '',
+	  ccGeneratedDate: '',
       search: '',
       authenticated: false, //check if user is authenticated by FB
       pagination: { sortBy: 'rank', rowsPerPage: 100, descending: false },
@@ -92,6 +93,8 @@ var app = new Vue({
           this.totalCcUSD = 0;
           this.totalCcEUR = 0;
           this.totalCcBTC = 0;
+		  this.ccTimestamp = new Date().getTime();
+          this.ccGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);		  
           this.myCoins.forEach(elem => {
             console.log('Analyzing ticker - ' + elem.symbol);
             var symbol = elem.symbol === 'MIOTA' ? 'IOTA' : elem.symbol; //IOTA is MIOTA on CoinMarketCap.com
@@ -114,18 +117,18 @@ var app = new Vue({
         .get(this.coinMarketCapUrl)
         .then(response => {
           console.log('response received - ' + response.data.length, new Date())
+          this.cmcGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
+          this.cmcTimestamp = new Date().getTime();
           this.items = this.addMyCoins(response.data);
           this.items.forEach(elem => {
             //elem.convName = elem['name'].replace(/ /g, "-"); //create the name to be used in link
             if (elem.valueUSD) {
-              elem.percentage = elem.valueUSD / this.totalUSD; //calculate percent
+              elem.percentage = elem.valueUSD / this.totalCmcUSD; //calculate percent
             }
           });
           clearInterval(this.timerId);
           this.responseReceived = true;
-          document.title = `(${this.totalUSD.toLocaleString("en", { style: "currency", currency: "USD" })})How much do my coins cost?`;
-          this.generatedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
-          this.timestamp = new Date().getTime();
+          document.title = `(${this.totalCmcUSD.toLocaleString("en", { style: "currency", currency: "USD" })})How much do my coins cost?`;
           console.log('response processed', new Date())
         })
         .catch(error => {
@@ -136,13 +139,13 @@ var app = new Vue({
           this.timerValue = error;
           document.title = 'Error';
         });
-      this.startTimer(this.timerValue, this.timerId);
+      this.startTimer();
     },
 
-    startTimer(timerValue, timerId) {
+    startTimer() {
       var startTime = new Date();
-      timerValue = "Starting the timer...";
-      timerId = setInterval(() => {
+      this.timerValue = "Starting the timer...";
+      this.timerId = setInterval(() => {
         var ms = parseInt(new Date() - startTime);
         var x = ms / 1000;
         var seconds = parseInt(x % 60, 10);
@@ -150,7 +153,7 @@ var app = new Vue({
         var minutes = parseInt(x % 60, 10);
         x /= 60;
         var hours = parseInt(x % 24, 10);
-        timerValue = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
+        this.timerValue = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
       }, 1000);
     },
 
@@ -163,9 +166,9 @@ var app = new Vue({
             arr[i].amount = (arr[i].amount || 0) + elem.amount;
             var valUSD = elem.amount * arr[i].price_usd;
             arr[i].valueUSD = (arr[i].valueUSD || 0) + valUSD;
-            this.totalUSD += valUSD;
-            this.totalEUR += elem.amount * arr[i].price_eur;
-            this.totalBTC += elem.amount * arr[i].price_btc;
+            this.totalCmcUSD += valUSD;
+            this.totalCmcEUR += elem.amount * arr[i].price_eur;
+            this.totalCmcBTC += elem.amount * arr[i].price_btc;
             found = true;
             break;
           }
@@ -177,15 +180,14 @@ var app = new Vue({
       return arr;
     },
 
-    saveToFireBase(src) {
+    saveToFireBase(src, timestamp, date, valUSD, valEUR, valBTC) {
       console.log(arguments)
       var userId = firebase.auth().currentUser.uid;
-      firebase.database().ref('/' + userId + '/balance/' + (this.timestamp)).set({
-        //src: src,
-        date: this.generatedDate,
-        btc: this.totalBTC,
-        eur: this.totalEUR,
-        usd: this.totalUSD
+      firebase.database().ref(`/${userId}/balance/${src}/${timestamp}`).set({
+        date: date,
+        btc: valBTC,
+        eur: valEUR,
+        usd: valUSD
       });
     }
   },

@@ -30,11 +30,11 @@
             <v-card v-show="responseReceived">
               <v-card-title>
                 <h6 class="headline mb-0">
-                  Total value - {{totalUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalEUR.toLocaleString("en", {style:
+                  Total value - {{totalCmcUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalCmcEUR.toLocaleString("en", {style:
                   "currency", currency: "EUR"})}} /
-                  <i class="fa fa-btc"></i>{{totalBTC.toFixed(8)}}
+                  <i class="fa fa-btc"></i>{{totalCmcBTC.toFixed(8)}}
                 </h6>
-                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('CMC', totalUSD)">
+                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cmc', cmcTimestamp, cmcGeneratedDate, totalCmcUSD, totalCmcEUR, totalCmcBTC)">
                   <v-icon dark>add</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
@@ -42,7 +42,7 @@
               </v-card-title>
               <v-card>
                 <v-card-title>
-                  <em>Generated: {{generatedDate}}</em>
+                  <em>Generated: {{cmcGeneratedDate}}</em>
                 </v-card-title>
               </v-card>
               <v-card>
@@ -50,7 +50,7 @@
                   <em>Cryptocompare: {{totalCcUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalCcEUR.toLocaleString("en",
                     {style: "currency", currency: "EUR"})}} /
                     <i class="fa fa-btc"></i>{{totalCcBTC.toFixed(8)}}
-                    <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('CC')">
+                    <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cc', ccTimestamp, ccGeneratedDate, totalCcUSD, totalCcEUR, totalCcBTC)">
                       <v-icon dark>add</v-icon>
                     </v-btn>
                   </em>
