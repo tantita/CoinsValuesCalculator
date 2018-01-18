@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Balances</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+  <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+
+<body>
+  <v-app id="app">
+    <div v-cloak>
+      <v-content>
+        <v-container fluid fill-width>
+          <v-layout>
+            <v-btn fab dark small color="indigo" v-on:click="saveToFireBase()">
+              <v-icon dark>add</v-icon>
+            </v-btn>
+
+            <v-expansion-panel popout>
+              <v-expansion-panel-content v-for="(value, key) in object" :key='key'>
+                <div slot="header"><input v-model='key'></input></div>
+                <v-card>
+                  <v-card-text class="grey lighten-3">
+                    <v-card v-for="balance in value">
+                      {{ balance.balance }}
+                    </v-card>
+                  </v-card-text>
+                </v-card>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+
+          </v-layout>
+        </v-container>
+      </v-content>
+    </div>
+  </v-app>
+
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyAH6bmHzeLCJstIN6JAEna7Px_dnmWXz8k",
+      authDomain: "coinsvaluescalculator.firebaseapp.com",
+      databaseURL: "https://coinsvaluescalculator.firebaseio.com",
+      projectId: "coinsvaluescalculator",
+      storageBucket: "coinsvaluescalculator.appspot.com",
+      messagingSenderId: "796619285042"
+    };
+    firebase.initializeApp(config);
+  </script>
+
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.1/axios.min.js"></script>
+  <script src="fb.js"></script>
+  <script src="Balances.js"></script>
+</body>
+
+</html>
