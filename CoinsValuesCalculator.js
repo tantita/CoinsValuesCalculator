@@ -11,8 +11,11 @@ var app = new Vue({
       totalCcUSD: 0, //CryptoCompare
       totalCcEUR: 0, //CryptoCompare
       totalCcBTC: 0, //CryptoCompare
+      totalMarketCap: 0, //global coinmarketcap data
+      total24hVolume: 0, //global coinmarketcap data
+      totalBTCDominance: 0, //global coinmarketcap data
       cmcGeneratedDate: '',
-	  ccGeneratedDate: '',
+      ccGeneratedDate: '',
       search: '',
       authenticated: false, //check if user is authenticated by FB
       pagination: { sortBy: 'rank', rowsPerPage: 100, descending: false },
@@ -78,6 +81,18 @@ var app = new Vue({
     };
   },
   methods: {
+    getCoinMarketCapGlobal() {
+      axios
+        .get(this.coinMarketCapGlobalUrl)
+        .then(response => {
+          console.log(response.data);
+          this.totalMarketCap = response.data.total_market_cap_usd;
+          this.total24hVolume = response.data.total_24h_volume_usd;
+          this.totalBTCDominance = response.data.bitcoin_percentage_of_market_cap;
+        })
+        .catch(error => console.log(error))
+
+    },
     getCryptoCompareCoins() {
       console.log(this.myCoins);
 
@@ -93,8 +108,8 @@ var app = new Vue({
           this.totalCcUSD = 0;
           this.totalCcEUR = 0;
           this.totalCcBTC = 0;
-		  this.ccTimestamp = new Date().getTime();
-          this.ccGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);		  
+          this.ccTimestamp = new Date().getTime();
+          this.ccGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
           this.myCoins.forEach(elem => {
             console.log('Analyzing ticker - ' + elem.symbol);
             var symbol = elem.symbol === 'MIOTA' ? 'IOTA' : elem.symbol; //IOTA is MIOTA on CoinMarketCap.com
@@ -196,10 +211,12 @@ var app = new Vue({
     //console.log(this.$vuetify.breakpoint);
 
     this.coinMarketCapUrl = 'https://api.coinmarketcap.com/v1/ticker/?limit=100&convert=EUR';
+    this.coinMarketCapGlobalUrl = 'https://api.coinmarketcap.com/v1/global/';
     this.cryptoCompareUrl = 'https://min-api.cryptocompare.com/data/pricemulti';
     this.myCoins = returnMyCoins();
     this.getCoinMarketCapCoins();
     this.getCryptoCompareCoins();
+    this.getCoinMarketCapGlobal();
 
     if (typeof getFbCredentials === 'function') { //check if we have a function with credentials
       var credentials = getFbCredentials();
