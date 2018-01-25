@@ -24,14 +24,18 @@
             <v-btn fab dark small color="indigo" v-on:click="saveToFireBase()">
               <v-icon dark>add</v-icon>
             </v-btn>
-
-            <v-expansion-panel popout>
+            <v-btn fab light small color="indigo" v-on:click="addCoin()">
+              <v-icon dark>add</v-icon>
+            </v-btn>
+            <v-expansion-panel popout v-if="loaded">
               <v-expansion-panel-content v-for="(value, key) in object" :key='key'>
                 <div slot="header"><input v-model='key'></input></div>
                 <v-card>
                   <v-card-text class="grey lighten-3">
-                    <v-card v-for="balance in value">
-                      {{ balance.balance }}
+                    <v-card v-for="balance in value" :key='value.index'>
+                      <input v-model='balance.balance'></input>
+                      <input v-model='balance.exchange'></input>
+                      <input v-model='balance.invested'></input>
                     </v-card>
                   </v-card-text>
                 </v-card>

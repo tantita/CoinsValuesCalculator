@@ -3,14 +3,22 @@ var app = new Vue({
 
   data() {
     return {
-      object: {}
+      object: {},
+      loaded: false
     };
   },
   methods: {
     saveToFireBase() {
       var userId = firebase.auth().currentUser.uid;
       firebase.database().ref(`/${userId}/myCoins`).set(this.object);
-
+    },
+    addCoin() {
+    	Vue.set(this.object, '<<Enter ticker>>', [
+        {
+          balance: 0.2,
+          exchange: 'hitbtc'
+        }
+      ]);
     }
   },
   mounted() {
@@ -31,6 +39,7 @@ var app = new Vue({
         return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
           this.object = Object.assign(this.object, snapshot.val());
           //todo: don't should UI until not loaded
+          this.loaded = true;
         });
       }
     });
