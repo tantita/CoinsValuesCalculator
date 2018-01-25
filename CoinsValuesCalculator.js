@@ -18,7 +18,7 @@ var app = new Vue({
       ccGeneratedDate: '',
       search: '',
       authenticated: false, //check if user is authenticated by FB
-      pagination: { sortBy: 'rank', rowsPerPage: 100, descending: false },
+      pagination: { sortBy: 'rank', rowsPerPage: 200, descending: false },
       headers: [
         {
           text: "Rank",
@@ -210,7 +210,7 @@ var app = new Vue({
 
     //console.log(this.$vuetify.breakpoint);
 
-    this.coinMarketCapUrl = 'https://api.coinmarketcap.com/v1/ticker/?limit=100&convert=EUR';
+    this.coinMarketCapUrl = 'https://api.coinmarketcap.com/v1/ticker/?limit=200&convert=EUR';
     this.coinMarketCapGlobalUrl = 'https://api.coinmarketcap.com/v1/global/';
     this.cryptoCompareUrl = 'https://min-api.cryptocompare.com/data/pricemulti';
     this.myCoins = returnMyCoins();
