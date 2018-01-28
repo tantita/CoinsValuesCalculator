@@ -49,12 +49,12 @@
                 </div>
                 <div v-for="(balance, index) in value"> <!--  :key='value.index' -->
                 <v-card color="grey lighten-4" flat>
-                  <v-card-title>
-                      <v-btn v-on:click="deleteBalance(index)">Delete balance</v-btn>
-                  </v-card-title>
                   <v-card-text>
                     <v-container fluid grid-list-md>
                       <v-layout row wrap>
+                        <v-flex xs12 sm3>
+                          <v-btn v-on:click="deleteBalance(index)">Delete balance</v-btn>
+                        </v-flex>
                         <v-flex xs12 sm3>
                             <v-text-field label="balance" v-model='balance.balance'></v-text-field>
                           </v-flex>

@@ -42,20 +42,37 @@ var app = new Vue({
       console.log(arguments);
       //todo
     },
-    readFromFirebase() {
-      //todo
+    readFromFirebase() { //TEMP function
+      console.log('read from firebase');
+      this.authFB();
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) { // User is signed in.
+          console.log('in on auth changed');
+          var userId = firebase.auth().currentUser.uid;
+          return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
+            var obj = Object.assign({}, snapshot.val());
+            console.log(obj);
+          });
+        }
+      });
+
+
+    },
+    authFB() {
+      if (!firebase.auth().currentUser) {
+        console.log('authentication required');
+        firebase.auth().signInWithEmailAndPassword(this.credentials[0], this.credentials[1]).catch(function (error) {
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log('FireBase authentication error', errorCode, errorMessage);
+        });
+      }
     }
   },
   mounted() {
-    var credentials = getFbCredentials();
-    if (!firebase.auth().currentUser) {
-      console.log('authentication required');
-      firebase.auth().signInWithEmailAndPassword(credentials[0], credentials[1]).catch(function (error) {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log('FireBase authentication error', errorCode, errorMessage);
-      });
-    }
+    this.credentials = getFbCredentials();
+    this.authFB();
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) { // User is signed in.
