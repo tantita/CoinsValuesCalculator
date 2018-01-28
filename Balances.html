@@ -45,27 +45,46 @@
                 <div slot="header">
                   <strong>{{key}}</strong>
                   <v-btn v-on:click="deleteCoin(key)">Delete</v-btn>
+                  <v-btn v-on:click="addBalance(key)">Add</v-btn>
                 </div>
-                <v-card>
-                  <v-card-text class="grey lighten-3">
-                    <v-card v-for="balance in value" :key='value.index'>
-                      <v-text-field label="balance" v-model='balance.balance'></v-text-field>
-                      <v-text-field label="exchange" v-model='balance.exchange'></v-text-field>
-                      <v-text-field label="invested" v-model='balance.invested'></v-text-field>
-                    </v-card>
+                <div v-for="(balance, index) in value"> <!--  :key='value.index' -->
+                <v-card color="grey lighten-4" flat>
+                  <v-card-title>
+                      <v-btn v-on:click="deleteBalance(index)">Delete balance</v-btn>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container fluid grid-list-md>
+                      <v-layout row wrap>
+                        <v-flex xs12 sm3>
+                            <v-text-field label="balance" v-model='balance.balance'></v-text-field>
+                          </v-flex>
+                        <v-flex xs12 sm3>
+                            <v-text-field label="exchange" v-model='balance.exchange'></v-text-field>
+                          </v-flex>
+                        <v-flex xs12 sm3>
+                            <v-text-field label="invested" v-model='balance.invested'></v-text-field>
+                          </v-flex>
+                      </v-layout>
+                    </v-container>
                   </v-card-text>
                 </v-card>
+              </div>
+
+
               </v-expansion-panel-content>
             </v-expansion-panel>
-        </v-container>
 
-        <v-btn fab dark small bottom left color="indigo" v-on:click="saveToFireBase()">
-          <v-icon dark>save</v-icon>
-        </v-btn>
-        <v-btn fab dark small bottom left color="indigo" v-on:click="showModal = true">
-          <v-icon dark>add</v-icon>
-        </v-btn>
-        </v-layout>
+            <v-btn fab dark small bottom left color="indigo" v-on:click="saveToFireBase()">
+              <v-icon dark>save</v-icon>
+            </v-btn>
+            <v-btn fab dark small bottom left color="indigo" v-on:click="showModal = true">
+              <v-icon dark>add</v-icon>
+            </v-btn>
+            <v-btn fab dark small bottom left color="indigo" v-on:click="readFromFirebase()">
+              <v-icon dark>info</v-icon>
+            </v-btn>
+          </v-layout>
+        </v-container>
       </v-content>
     </div>
   </v-app>

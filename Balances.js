@@ -30,9 +30,20 @@ var app = new Vue({
         }
       ]);
     },
+    addBalance(key) {
+      console.log('a new balance should be created for - ' + key);
+      this.object[key].push({balance: 0.0, exchange: '' , invested: 0.0});
+    },
     deleteCoin(symbol) {
       console.log('deleting the key - ' + symbol);
       Vue.delete (this.object, symbol);
+    },
+    deleteBalance(index) {
+      console.log(arguments);
+      //todo
+    },
+    readFromFirebase() {
+      //todo
     }
   },
   mounted() {
