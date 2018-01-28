@@ -17,33 +17,55 @@
 
 <body>
   <v-app id="app">
+
+
     <div v-cloak>
+
+      <v-dialog v-model="showModal" max-width="500px">
+        <v-card>
+          <v-card-title>
+            Enter a new ticker
+          </v-card-title>
+          <v-card-text>
+            <input v-model="newSymbol"></input>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="primary" flat @click.stop="addCoin()">Add</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+
+
       <v-content>
         <v-container fluid fill-width>
           <v-layout>
-            <v-btn fab dark small color="indigo" v-on:click="saveToFireBase()">
-              <v-icon dark>add</v-icon>
-            </v-btn>
-            <v-btn fab light small color="indigo" v-on:click="addCoin()">
-              <v-icon dark>add</v-icon>
-            </v-btn>
             <v-expansion-panel popout v-if="loaded">
               <v-expansion-panel-content v-for="(value, key) in object" :key='key'>
-                <div slot="header"><input v-model='key'></input></div>
+                <div slot="header">
+                  <strong>{{key}}</strong>
+                  <v-btn v-on:click="deleteCoin(key)">Delete</v-btn>
+                </div>
                 <v-card>
                   <v-card-text class="grey lighten-3">
                     <v-card v-for="balance in value" :key='value.index'>
-                      <input v-model='balance.balance'></input>
-                      <input v-model='balance.exchange'></input>
-                      <input v-model='balance.invested'></input>
+                      <v-text-field label="balance" v-model='balance.balance'></v-text-field>
+                      <v-text-field label="exchange" v-model='balance.exchange'></v-text-field>
+                      <v-text-field label="invested" v-model='balance.invested'></v-text-field>
                     </v-card>
                   </v-card-text>
                 </v-card>
               </v-expansion-panel-content>
             </v-expansion-panel>
-
-          </v-layout>
         </v-container>
+
+        <v-btn fab dark small bottom left color="indigo" v-on:click="saveToFireBase()">
+          <v-icon dark>save</v-icon>
+        </v-btn>
+        <v-btn fab dark small bottom left color="indigo" v-on:click="showModal = true">
+          <v-icon dark>add</v-icon>
+        </v-btn>
+        </v-layout>
       </v-content>
     </div>
   </v-app>

@@ -3,7 +3,15 @@ var app = new Vue({
 
   data() {
     return {
-      object: {},
+      showModal: false,
+      newSymbol: '',
+      object: {key: [
+        {
+          balance: 0.0,
+          exchange: '',
+          invested: 0.0
+        }
+      ]},
       loaded: false
     };
   },
@@ -13,12 +21,18 @@ var app = new Vue({
       firebase.database().ref(`/${userId}/myCoins`).set(this.object);
     },
     addCoin() {
-    	Vue.set(this.object, '<<Enter ticker>>', [
+      this.showModal = false;
+      console.log('a new symbol entered - ' + this.newSymbol);
+    	Vue.set(this.object, this.newSymbol, [
         {
-          balance: 0.2,
-          exchange: 'hitbtc'
+          balance: 0.0,
+          exchange: ''
         }
       ]);
+    },
+    deleteCoin(symbol) {
+      console.log('deleting the key - ' + symbol);
+      Vue.delete (this.object, symbol);
     }
   },
   mounted() {
@@ -37,7 +51,7 @@ var app = new Vue({
         console.log('in on auth changed');
         var userId = firebase.auth().currentUser.uid;
         return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
-          this.object = Object.assign(this.object, snapshot.val());
+          this.object = Object.assign({}, snapshot.val());
           //todo: don't should UI until not loaded
           this.loaded = true;
         });
