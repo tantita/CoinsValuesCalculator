@@ -5,6 +5,7 @@ var app = new Vue({
     return {
       timerValue: '',
       responseReceived: false,
+      myShare: 0,
       totalCmcUSD: 0, //CoinMarketCap
       totalCmcEUR: 0, //CoinMarketCap
       totalCmcBTC: 0, //CoinMarketCap
@@ -81,6 +82,11 @@ var app = new Vue({
     };
   },
   methods: {
+    calculateMyShare() {
+      if ((this.totalCcUSD) && (this.totalMarketCap)) {
+        this.myShare = this.totalCcUSD / this.totalMarketCap;
+      }
+    },
     getCoinMarketCapGlobal() {
       axios
         .get(this.coinMarketCapGlobalUrl)
@@ -89,6 +95,7 @@ var app = new Vue({
           this.totalMarketCap = response.data.total_market_cap_usd;
           this.total24hVolume = response.data.total_24h_volume_usd;
           this.totalBTCDominance = response.data.bitcoin_percentage_of_market_cap;
+          this.calculateMyShare();
         })
         .catch(error => console.log(error))
 
@@ -108,6 +115,7 @@ var app = new Vue({
           this.totalCcUSD = 0;
           this.totalCcEUR = 0;
           this.totalCcBTC = 0;
+          this.myShare = 0;
           this.ccTimestamp = new Date().getTime();
           this.ccGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
           this.myCoins.forEach(elem => {
@@ -141,6 +149,7 @@ var app = new Vue({
               elem.percentage = elem.valueUSD / this.totalCmcUSD; //calculate percent
             }
           });
+          this.calculateMyShare();
           clearInterval(this.timerId);
           this.responseReceived = true;
           document.title = `(${this.totalCmcUSD.toLocaleString("en", { style: "currency", currency: "USD" })})How much do my coins cost?`;

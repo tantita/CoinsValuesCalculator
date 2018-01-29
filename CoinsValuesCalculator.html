@@ -32,7 +32,7 @@
                 <h6 class="headline mb-0">
                   Total value - {{totalCmcUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalCmcEUR.toLocaleString("en", {style:
                   "currency", currency: "EUR"})}} /
-                  <i class="fa fa-btc"></i>{{totalCmcBTC.toFixed(8)}}
+                  <i class="fa fa-btc"></i>{{totalCmcBTC.toFixed(8)}} / {{ (myShare * 10e8).toFixed(4) }}
                 </h6>
                 <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cmc', cmcTimestamp, cmcGeneratedDate, totalCmcUSD, totalCmcEUR, totalCmcBTC)">
                   <v-icon dark>add</v-icon>
