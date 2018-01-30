@@ -45,14 +45,17 @@ var app = new Vue({
     readFromFirebase() { //TEMP function
       console.log('read from firebase');
       this.authFB();
-
       firebase.auth().onAuthStateChanged((user) => {
         if (user) { // User is signed in.
-          console.log('in on auth changed');
+          this.arr = [];
           var userId = firebase.auth().currentUser.uid;
           return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
             var obj = Object.assign({}, snapshot.val());
-            console.log(obj);
+            for (var key in obj) {
+              var sum = obj[key].reduce((total, elem) => total + elem.balance, 0);
+              this.arr.push ({symbol: key, amount : sum })
+            }
+            console.log(this.arr);
           });
         }
       });
@@ -80,7 +83,7 @@ var app = new Vue({
         var userId = firebase.auth().currentUser.uid;
         return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
           this.object = Object.assign({}, snapshot.val());
-          //todo: don't should UI until not loaded
+          //todo: don't show until not loaded
           this.loaded = true;
         });
       }

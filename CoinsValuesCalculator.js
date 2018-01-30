@@ -83,7 +83,7 @@ var app = new Vue({
   },
   methods: {
     calculateMyShare() {
-      if ((this.totalCcUSD) && (this.totalMarketCap)) {
+      if ((this.totalCcUSD > 0) && (this.totalMarketCap > 0)) {
         this.myShare = this.totalCcUSD / this.totalMarketCap;
       }
     },
@@ -204,15 +204,19 @@ var app = new Vue({
       return arr;
     },
 
-    saveToFireBase(src, timestamp, date, valUSD, valEUR, valBTC) {
+    saveToFireBase(src, timestamp, date, valUSD, valEUR, valBTC, share) {
       console.log(arguments)
       var userId = firebase.auth().currentUser.uid;
-      firebase.database().ref(`/${userId}/balance/${src}/${timestamp}`).set({
+      var obj = {
         date: date,
         btc: valBTC,
         eur: valEUR,
         usd: valUSD
-      });
+      };
+      if (typeof share !== "undefined") {
+        obj.share = share;
+      }
+      firebase.database().ref(`/${userId}/balance/${src}/${timestamp}`).set(obj);
     }
   },
   mounted() {
