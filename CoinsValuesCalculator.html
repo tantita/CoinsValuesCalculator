@@ -15,12 +15,11 @@
   </style>
 </head>
 
-
 <body>
   <v-app id="app">
     <div v-cloak>
       <div style="margin: 15px;" v-if="!responseReceived">
-        <h3>Sent the request to Coinmarketcap API to get cryptocurrences top 200</h3>
+        <h3>Sent the request to Coinmarketcap API to get cryptocurrences top 250</h3>
         <h3>Expecting the response...</h3>
         <h3>{{timerValue}}</h3>
       </div>
@@ -132,7 +131,7 @@
   <script src="https://unpkg.com/vue"></script>
   <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.1/axios.min.js"></script>
-  <script src="myCoins.js"></script>
+  <script src="fb.js"></script>
   <script src="CoinsValuesCalculator.js"></script>
 </body>
 

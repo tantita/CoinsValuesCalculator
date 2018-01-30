@@ -19,7 +19,7 @@ var app = new Vue({
       ccGeneratedDate: '',
       search: '',
       authenticated: false, //check if user is authenticated by FB
-      pagination: { sortBy: 'rank', rowsPerPage: 200, descending: false },
+      pagination: { sortBy: 'rank', rowsPerPage: 250, descending: false },
       headers: [
         {
           text: "Rank",
@@ -83,8 +83,19 @@ var app = new Vue({
   },
   methods: {
     calculateMyShare() {
-      if ((this.totalCcUSD > 0) && (this.totalMarketCap > 0)) {
-        this.myShare = this.totalCcUSD / this.totalMarketCap;
+      if ((this.totalCmcUSD > 0) && (this.totalMarketCap > 0)) {
+        this.myShare = this.totalCmcUSD / this.totalMarketCap;
+      }
+    },
+    adjustForCc(sym) {
+      var obj = {
+        MIOTA: 'IOTA',
+        BCC: 'BCCOIN'
+      }
+      if (obj.hasOwnProperty(sym)) {
+        return obj[sym];
+      } else {
+        return sym;
       }
     },
     getCoinMarketCapGlobal() {
@@ -101,12 +112,10 @@ var app = new Vue({
 
     },
     getCryptoCompareCoins() {
-      console.log(this.myCoins);
-
       axios
         .get(this.cryptoCompareUrl, {
           params: {
-            'fsyms': this.myCoins.map(elem => elem.symbol === 'MIOTA' ? 'IOTA' : elem.symbol).join(','), //MIOTA is IOTA on CryptoCompare
+            'fsyms': this.myCoins.map(elem => this.adjustForCc(elem.symbol)).join(','),
             'tsyms': 'USD,EUR,BTC'
           }
         })
@@ -119,15 +128,13 @@ var app = new Vue({
           this.ccTimestamp = new Date().getTime();
           this.ccGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
           this.myCoins.forEach(elem => {
-            console.log('Analyzing ticker - ' + elem.symbol);
-            var symbol = elem.symbol === 'MIOTA' ? 'IOTA' : elem.symbol; //IOTA is MIOTA on CoinMarketCap.com
+            var symbol = this.adjustForCc(elem.symbol);
             if (response.data.hasOwnProperty(symbol)) {
-              console.log(response.data[symbol]);
               this.totalCcUSD += response.data[symbol]['USD'] * elem.amount;
               this.totalCcEUR += response.data[symbol]['EUR'] * elem.amount;
               this.totalCcBTC += response.data[symbol]['BTC'] * elem.amount;
             } else {
-              alert('The currency is not found - ' + symbol);
+              alert('(CC)The coin is not found - ' + symbol);
             }
           });
         })
@@ -135,16 +142,13 @@ var app = new Vue({
     },
 
     getCoinMarketCapCoins() {
-      console.log('before sending the request to coinmarketcap', new Date())
       axios
         .get(this.coinMarketCapUrl)
         .then(response => {
-          console.log('response received - ' + response.data.length, new Date())
           this.cmcGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
           this.cmcTimestamp = new Date().getTime();
           this.items = this.addMyCoins(response.data);
           this.items.forEach(elem => {
-            //elem.convName = elem['name'].replace(/ /g, "-"); //create the name to be used in link
             if (elem.valueUSD) {
               elem.percentage = elem.valueUSD / this.totalCmcUSD; //calculate percent
             }
@@ -153,10 +157,8 @@ var app = new Vue({
           clearInterval(this.timerId);
           this.responseReceived = true;
           document.title = `(${this.totalCmcUSD.toLocaleString("en", { style: "currency", currency: "USD" })})How much do my coins cost?`;
-          console.log('response processed', new Date())
         })
         .catch(error => {
-          console.log('inside catch...');
           console.log(error);
           this.items = [];
           clearInterval(this.timerId);
@@ -183,7 +185,6 @@ var app = new Vue({
 
     addMyCoins(arr) {
       this.myCoins.forEach(elem => {
-        //console.log('Analyzing ticker - ' + elem.symbol);
         var found = false;
         for (let i = 0; i < arr.length; i++) {
           if (arr[i].symbol === elem.symbol) {
@@ -198,14 +199,14 @@ var app = new Vue({
           }
         }
         if (!found) {
-          alert('The currency is not found - ' + elem.symbol);
+          alert('(CMC)The coin is not found - ' + elem.symbol);
         }
       });
       return arr;
     },
 
     saveToFireBase(src, timestamp, date, valUSD, valEUR, valBTC, share) {
-      console.log(arguments)
+      //console.log(arguments)
       var userId = firebase.auth().currentUser.uid;
       var obj = {
         date: date,
@@ -223,35 +224,41 @@ var app = new Vue({
 
     //console.log(this.$vuetify.breakpoint);
 
-    this.coinMarketCapUrl = 'https://api.coinmarketcap.com/v1/ticker/?limit=200&convert=EUR';
+    this.coinMarketCapUrl = 'https://api.coinmarketcap.com/v1/ticker/?limit=250&convert=EUR';
     this.coinMarketCapGlobalUrl = 'https://api.coinmarketcap.com/v1/global/';
     this.cryptoCompareUrl = 'https://min-api.cryptocompare.com/data/pricemulti';
-    this.myCoins = returnMyCoins();
-    this.getCoinMarketCapCoins();
-    this.getCryptoCompareCoins();
-    this.getCoinMarketCapGlobal();
 
-    if (typeof getFbCredentials === 'function') { //check if we have a function with credentials
-      var credentials = getFbCredentials();
-      if (!firebase.auth().currentUser) {
-        console.log('authentication required');
-        firebase.auth().signInWithEmailAndPassword(credentials[0], credentials[1]).catch(function (error) {
-          //firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          console.log('FireBase authentication error', errorCode, errorMessage);
-        });
-      } else {
-        console.log('authentication IS NOT required');
-        this.authenticated = true;
-      }
-
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) { // User is signed in.
-          console.log('in on auth changed');
-          this.authenticated = true;
-        }
+    var credentials = getFbCredentials();
+    if (!firebase.auth().currentUser) {
+      console.log('authentication IS required');
+      firebase.auth().signInWithEmailAndPassword(credentials[0], credentials[1]).catch(function (error) {
+        //firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log('FireBase authentication error', errorCode, errorMessage);
       });
+    } else {
+      console.log('authentication IS NOT required');
+      this.authenticated = true;
     }
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) { // User is signed in.
+        this.authenticated = true;
+        this.myCoins = [];
+        var userId = firebase.auth().currentUser.uid;
+        return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
+          var obj = Object.assign({}, snapshot.val());
+          for (var key in obj) {
+            var sum = obj[key].reduce((total, elem) => total + elem.balance || 0, 0);
+            this.myCoins.push({ symbol: key, amount: sum })
+          }
+          this.getCoinMarketCapCoins();
+          this.getCryptoCompareCoins();
+          this.getCoinMarketCapGlobal();
+        });
+      }
+    });
+
   }
 });
