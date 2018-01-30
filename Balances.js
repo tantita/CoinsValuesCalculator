@@ -23,12 +23,14 @@ var app = new Vue({
     addCoin() {
       this.showModal = false;
       console.log('a new symbol entered - ' + this.newSymbol);
-    	Vue.set(this.object, this.newSymbol, [
-        {
-          balance: 0.0,
-          exchange: ''
-        }
-      ]);
+      if ('' !== this.newSymbol) {
+        Vue.set(this.object, this.newSymbol, [
+          {
+            balance: 0.0,
+            exchange: ''
+          }
+        ]);
+      }
     },
     addBalance(key) {
       console.log('a new balance should be created for - ' + key);
@@ -36,11 +38,15 @@ var app = new Vue({
     },
     deleteCoin(symbol) {
       console.log('deleting the key - ' + symbol);
-      Vue.delete (this.object, symbol);
+      if (window.confirm('Are you sure you want to delete this coin?')) {
+        Vue.delete (this.object, symbol);
+      }
     },
-    deleteBalance(index) {
+    deleteBalance(key, index) {
       console.log(arguments);
-      //todo
+      if (window.confirm('Are you sure you want to delete this balance?')) {
+        this.object[key].splice(index, 1);
+      }
     },
     readFromFirebase() { //TEMP function
       console.log('read from firebase');
@@ -52,15 +58,13 @@ var app = new Vue({
           return firebase.database().ref(`/${userId}/myCoins`).once('value').then((snapshot) => {
             var obj = Object.assign({}, snapshot.val());
             for (var key in obj) {
-              var sum = obj[key].reduce((total, elem) => total + elem.balance, 0);
+              var sum = obj[key].reduce((total, elem) => total + elem.balance || 0, 0);
               this.arr.push ({symbol: key, amount : sum })
             }
             console.log(this.arr);
           });
         }
       });
-
-
     },
     authFB() {
       if (!firebase.auth().currentUser) {
