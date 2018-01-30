@@ -27,7 +27,8 @@ var app = new Vue({
         Vue.set(this.object, this.newSymbol, [
           {
             balance: 0.0,
-            exchange: ''
+            exchange: '',
+            invested: 0.0
           }
         ]);
       }
