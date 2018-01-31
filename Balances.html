@@ -11,23 +11,27 @@
     [v-cloak] {
       display: none;
     }
+
+    .fab-container {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+    }
   </style>
 </head>
 
 
 <body>
   <v-app id="app">
-
-
     <div v-cloak>
 
-      <v-dialog v-model="showModal" max-width="500px">
+      <v-dialog v-model="showModal" max-width="500px" @keydown.enter="addCoin()" @keydown.esc="showModal = false">
         <v-card>
           <v-card-title>
             Enter a new ticker
           </v-card-title>
           <v-card-text>
-            <v-text-field label="New ticker" v-model='newSymbol'></v-text-field>
+            <v-text-field autofocus label="New ticker" v-model='newSymbol'></v-text-field>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" flat @click.stop="addCoin()">Add</v-btn>
@@ -35,54 +39,73 @@
         </v-card>
       </v-dialog>
 
-
-
       <v-content>
         <v-container fluid fill-width>
           <v-layout>
             <v-expansion-panel popout v-if="loaded">
-              <v-expansion-panel-content v-for="(value, key) in object" :key='key'>
+              <v-expansion-panel-content v-model="show[key]" v-for="(value, key) in object" :key='key' :id="key">
                 <div slot="header">
-                  <strong>{{key}}</strong>
-                  <v-btn v-on:click="deleteCoin(key)">Delete this coin</v-btn>
-                  <v-btn v-on:click="addBalance(key)">Add Balance</v-btn>
+                  <v-layout row wrap>
+                    <v-flex xs12 sm1>
+                      <div style="text-align: center;">
+                        <v-chip color="primary" text-color="white">{{key}}</v-chip>
+                      </div>
+                    </v-flex>
+                    <v-flex xs12 sm2>
+                      <v-btn v-on:click="deleteCoin(key)">Delete this coin</v-btn>
+                    </v-flex>
+                    <v-flex xs12 sm3>
+                      <v-btn v-on:click.stop="addBalance(key)">Add Balance</v-btn>
+                    </v-flex>
+                  </v-layout>
                 </div>
-                <div v-for="(balance, index) in value"> <!--  :key='value.index' -->
-                <v-card color="grey lighten-4" flat>
-                  <v-card-text>
-                    <v-container fluid grid-list-md>
-                      <v-layout row wrap>
-                        <v-flex xs12 sm3>
-                          <v-btn v-on:click="deleteBalance(key, index)">Delete balance</v-btn>
-                        </v-flex>
-                        <v-flex xs12 sm3>
+                <div v-for="(balance, index) in value">
+                  <!--  :key='value.index' -->
+                  <v-card color="grey lighten-4" flat>
+                    <v-card-text>
+                      <v-container fluid grid-list-md>
+                        <v-layout row wrap>
+                          <v-flex xs12 sm3>
+                            <v-btn v-on:click="deleteBalance(key, index)">Delete balance</v-btn>
+                          </v-flex>
+                          <v-flex xs12 sm3>
                             <v-text-field label="balance" type="number" v-model.number='balance.balance'></v-text-field>
                           </v-flex>
-                        <v-flex xs12 sm3>
+                          <v-flex xs12 sm3>
                             <v-text-field label="exchange" v-model='balance.exchange'></v-text-field>
                           </v-flex>
-                        <v-flex xs12 sm3>
+                          <v-flex xs12 sm3>
                             <v-text-field label="invested" type="number" v-model.number='balance.invested'></v-text-field>
                           </v-flex>
-                      </v-layout>
-                    </v-container>
-                  </v-card-text>
-                </v-card>
-              </div>
-
+                        </v-layout>
+                      </v-container>
+                    </v-card-text>
+                  </v-card>
+                </div>
 
               </v-expansion-panel-content>
             </v-expansion-panel>
 
-            <v-btn fab dark small bottom left color="indigo" v-on:click="saveToFireBase()">
-              <v-icon dark>save</v-icon>
-            </v-btn>
-            <v-btn fab dark small bottom left color="indigo" v-on:click="showModal = true">
-              <v-icon dark>add</v-icon>
-            </v-btn>
-            <v-btn fab dark small bottom left color="indigo" v-on:click="readFromFirebase()">
-              <v-icon dark>info</v-icon>
-            </v-btn>
+            <v-layout column class="fab-container">
+              <v-tooltip left>
+                <v-btn fab dark small color="indigo" slot="activator" v-on:click="saveToFireBase()">
+                  <v-icon dark>save</v-icon>
+                </v-btn>
+                <span>Save to Firebase</span>
+              </v-tooltip>
+              <v-tooltip left>
+                <v-btn fab dark small color="indigo" slot="activator" v-on:click="showModal = true">
+                  <v-icon dark>add</v-icon>
+                </v-btn>
+                <span>Add the coin</span>
+              </v-tooltip>
+              <v-tooltip left>
+                <v-btn fab dark small color="indigo" slot="activator" v-on:click="readFromFirebase()">
+                  <v-icon dark>info</v-icon>
+                </v-btn>
+                <span>Read from Firebase and convert to canonical array (temp)</span>
+              </v-tooltip>
+            </v-layout>
           </v-layout>
         </v-container>
       </v-content>

@@ -4,6 +4,8 @@ var app = new Vue({
   data() {
     return {
       showModal: false,
+      show: {
+      },
       newSymbol: '',
       object: {key: [
         {
@@ -31,11 +33,16 @@ var app = new Vue({
             invested: 0.0
           }
         ]);
+        Vue.set(this.show, this.newSymbol, true);
+        //scroll to it
+        //this.$nextTick(window.scrollTo(0, document.body.scrollHeight));
+        setTimeout( () => window.scrollTo(0,document.body.scrollHeight));
       }
     },
     addBalance(key) {
       console.log('a new balance should be created for - ' + key);
       this.object[key].push({balance: 0.0, exchange: '' , invested: 0.0});
+      Vue.set(this.show, key, true);
     },
     deleteCoin(symbol) {
       console.log('deleting the key - ' + symbol);
@@ -48,6 +55,7 @@ var app = new Vue({
       if (window.confirm('Are you sure you want to delete this balance?')) {
         this.object[key].splice(index, 1);
       }
+      Vue.set(this.show, key, true);
     },
     readFromFirebase() { //TEMP function
       console.log('read from firebase');
