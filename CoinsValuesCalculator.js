@@ -124,7 +124,6 @@ var app = new Vue({
           this.totalCcUSD = 0;
           this.totalCcEUR = 0;
           this.totalCcBTC = 0;
-          this.myShare = 0;
           this.ccTimestamp = new Date().getTime();
           this.ccGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
           this.myCoins.forEach(elem => {
