@@ -76,6 +76,11 @@ var app = new Vue({
         {
           text: "% Change (7d)",
           value: "percent_change_7d"
+        },
+        {
+          text: "My",
+          value: "my",
+          class: "hidden-sm-and-down hidden-sm-and-up"
         }
       ],
       items: []
@@ -150,6 +155,7 @@ var app = new Vue({
           this.items.forEach(elem => {
             if (elem.valueUSD) {
               elem.percentage = elem.valueUSD / this.totalCmcUSD; //calculate percent
+              elem.my = 'my';
             }
           });
           this.calculateMyShare();
