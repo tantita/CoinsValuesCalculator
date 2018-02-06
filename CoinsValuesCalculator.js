@@ -17,7 +17,7 @@ var app = new Vue({
       totalBTCDominance: 0, //global coinmarketcap data
       cmcGeneratedDate: '',
       ccGeneratedDate: '',
-      search: '',
+      search: 'my',
       authenticated: false, //check if user is authenticated by FB
       pagination: { sortBy: 'rank', rowsPerPage: 250, descending: false },
       headers: [
@@ -92,6 +92,7 @@ var app = new Vue({
         this.myShare = this.totalCmcUSD / this.totalMarketCap;
       }
     },
+
     adjustForCc(sym) {
       var obj = {
         MIOTA: 'IOTA',
@@ -103,6 +104,7 @@ var app = new Vue({
         return sym;
       }
     },
+
     getCoinMarketCapGlobal() {
       axios
         .get(this.coinMarketCapGlobalUrl)
@@ -114,8 +116,8 @@ var app = new Vue({
           this.calculateMyShare();
         })
         .catch(error => console.log(error))
-
     },
+
     getCryptoCompareCoins() {
       axios
         .get(this.cryptoCompareUrl, {
