@@ -12,6 +12,9 @@
     [v-cloak] {
       display: none;
     }
+    div.checkbox .input-group__details {
+      display: none;
+    }
   </style>
 </head>
 
@@ -31,14 +34,14 @@
                 <h6 class="headline mb-0">
                   Total value - {{totalCmcUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalCmcEUR.toLocaleString("en", {style:
                   "currency", currency: "EUR"})}} /
-                  <i class="fa fa-btc"></i>{{totalCmcBTC.toFixed(8)}} / {{ (myShare * 10e8).toFixed(4) }}
+                  <i class="fa fa-btc"></i>{{totalCmcBTC.toFixed(8)}} / {{ (myCmcShare * 10e8).toFixed(4) }}
                 </h6>
-                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cmc', cmcTimestamp, cmcGeneratedDate, totalCmcUSD, totalCmcEUR, totalCmcBTC, myShare)">
+                <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cmc', cmcTimestamp, cmcGeneratedDate, totalCmcUSD, totalCmcEUR, totalCmcBTC, myCmcShare)">
                   <v-icon dark>add</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
                 <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
-                <v-checkbox label="My Coins" v-model="search" value="my"></v-checkbox>
+                <v-checkbox label="My Coins" v-model="search" value="my" style="padding-top: 18px;"></v-checkbox>
               </v-card-title>
               <v-card>
                 <v-card-title>
@@ -53,8 +56,8 @@
                 <v-card-title>
                   <em>Cryptocompare: {{totalCcUSD.toLocaleString("en", {style: "currency", currency: "USD"})}} / {{totalCcEUR.toLocaleString("en",
                     {style: "currency", currency: "EUR"})}} /
-                    <i class="fa fa-btc"></i>{{totalCcBTC.toFixed(8)}}
-                    <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cc', ccTimestamp, ccGeneratedDate, totalCcUSD, totalCcEUR, totalCcBTC)">
+                    <i class="fa fa-btc"></i>{{totalCcBTC.toFixed(8)}} / {{ (myCcShare * 10e8).toFixed(4) }}
+                    <v-btn fab dark small color="indigo" v-if="authenticated" v-on:click="saveToFireBase('cc', ccTimestamp, ccGeneratedDate, totalCcUSD, totalCcEUR, totalCcBTC, myCcShare)">
                       <v-icon dark>add</v-icon>
                     </v-btn>
                   </em>
@@ -85,10 +88,11 @@
                       {{ props.item.percentage.toLocaleString("en", {style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
                     </span>
                   </td>
-                  <td class="text-xs-right">{{ Math.round(props.item.market_cap_usd) }}</td>
+                  <td class="text-xs-right">{{ props.item.cc_price_usd ? Number(props.item.cc_price_usd).toFixed(4) : ''}}</td>
                   <td class="text-xs-right">{{ Number(props.item.price_usd).toFixed(4) }}</td>
                   <td class="text-xs-right">{{ Number(props.item.price_eur).toFixed(4) }}</td>
                   <td class="text-xs-right">{{ Number(props.item.price_btc).toFixed(8) }}</td>
+                  <td class="text-xs-right">{{ Math.round(props.item.market_cap_usd) }}</td>
                   <td class="text-xs-right">{{ Math.round(props.item.total_supply) }}</td>
                   <td class="text-xs-right">
                     <span v-bind:style="{ color: props.item.percent_change_1h < 0 ? 'red' : 'green' }">

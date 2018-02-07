@@ -5,7 +5,8 @@ var app = new Vue({
     return {
       timerValue: '',
       responseReceived: false,
-      myShare: 0,
+      myCmcShare: 0,
+      myCcShare: 0,
       totalCmcUSD: 0, //CoinMarketCap
       totalCmcEUR: 0, //CoinMarketCap
       totalCmcBTC: 0, //CoinMarketCap
@@ -46,8 +47,8 @@ var app = new Vue({
           value: "percentage"
         },
         {
-          text: "Market Cap",
-          value: "market_cap_usd"
+          text: "СС Price (USD)",
+          value: "cc_price_usd"
         },
         {
           text: "Price (USD)",
@@ -60,6 +61,10 @@ var app = new Vue({
         {
           text: "Price (BTC)",
           value: "price_btc"
+        },
+        {
+          text: "Market Cap",
+          value: "market_cap_usd"
         },
         {
           text: "Total Supply",
@@ -89,7 +94,10 @@ var app = new Vue({
   methods: {
     calculateMyShare() {
       if ((this.totalCmcUSD > 0) && (this.totalMarketCap > 0)) {
-        this.myShare = this.totalCmcUSD / this.totalMarketCap;
+        this.myCmcShare = this.totalCmcUSD / this.totalMarketCap;
+      }
+      if ((this.totalCcUSD > 0) && (this.totalMarketCap > 0)) {
+        this.myCcShare = this.totalCcUSD / this.totalMarketCap;
       }
     },
 
@@ -119,7 +127,7 @@ var app = new Vue({
     },
 
     getCryptoCompareCoins() {
-      axios
+      return axios
         .get(this.cryptoCompareUrl, {
           params: {
             'fsyms': this.myCoins.map(elem => this.adjustForCc(elem.symbol)).join(','),
@@ -143,14 +151,17 @@ var app = new Vue({
               alert('(CC)The coin is not found - ' + symbol);
             }
           });
+          this.calculateMyShare();
+          return response.data;
         })
         .catch(error => console.log(error))
     },
 
     getCoinMarketCapCoins() {
-      axios
+      return axios
         .get(this.coinMarketCapUrl)
         .then(response => {
+          console.log(response.data);
           this.cmcGeneratedDate = new Date().toLocaleString(navigator.userLanguage || navigator.language);
           this.cmcTimestamp = new Date().getTime();
           this.items = this.addMyCoins(response.data);
@@ -158,12 +169,13 @@ var app = new Vue({
             if (elem.valueUSD) {
               elem.percentage = elem.valueUSD / this.totalCmcUSD; //calculate percent
               elem.my = 'my';
+              elem.cc_price_usd = 0; //placeholder
             }
           });
           this.calculateMyShare();
           clearInterval(this.timerId);
-          this.responseReceived = true;
           document.title = `(${this.totalCmcUSD.toLocaleString("en", { style: "currency", currency: "USD" })})How much do my coins cost?`;
+          return response.data;
         })
         .catch(error => {
           console.log(error);
@@ -219,11 +231,12 @@ var app = new Vue({
         date: date,
         btc: valBTC,
         eur: valEUR,
-        usd: valUSD
+        usd: valUSD,
+        share: share
       };
-      if (typeof share !== "undefined") {
-        obj.share = share;
-      }
+      //if (typeof share !== "undefined") {
+      //  obj.share = share;
+      //}
       firebase.database().ref(`/${userId}/balance/${src}/${timestamp}`).set(obj);
     }
   },
@@ -260,8 +273,19 @@ var app = new Vue({
             var sum = obj[key].reduce((total, elem) => total + elem.balance || 0, 0);
             this.myCoins.push({ symbol: key, amount: sum })
           }
-          this.getCoinMarketCapCoins();
-          this.getCryptoCompareCoins();
+          Promise.all([this.getCoinMarketCapCoins(), this.getCryptoCompareCoins()]).then(values => {
+            console.log('promise all');
+            console.log(values);
+            for (key in values[1]) {
+              for (var i = 0; i < this.items.length; i++ ) {
+                if (key === this.adjustForCc(this.items[i]['symbol'])) {
+                  this.items[i].cc_price_usd = values[1][key]['USD'];
+                  break;
+                }
+              }
+            }
+            this.responseReceived = true;
+          });
           this.getCoinMarketCapGlobal();
         });
       }
